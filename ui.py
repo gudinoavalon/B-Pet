@@ -20,15 +20,15 @@ def draw_ui(state, pet):
     img = Image.new('1', (WIDTH, HEIGHT), 255) # White background
     draw = ImageDraw.Draw(img)
     
-    font_large = get_font(32)
-    font_medium = get_font(14)
-    font_small = get_font(12)
+    font_large = get_font(28)
+    font_medium = get_font(12)
+    font_small = get_font(10)
     
     # --- Top Bar (Inverted) ---
     draw.rectangle((0, 0, WIDTH, 16), fill=0)
     
     # Left: Name & Level
-    draw.text((4, 1), f"B-Pet | Lvl {pet.level}", font=font_small, fill=255)
+    draw.text((4, 2), f"B-Pet | Lvl {pet.level}", font=font_small, fill=255)
     
     # Right: Clock & Status
     clock_str = datetime.now().strftime("%H:%M")
@@ -40,34 +40,34 @@ def draw_ui(state, pet):
     # Using anchor='ra' for right alignment if supported, or manually inset
     try:
         w = draw.textlength(right_text, font=font_small)
-        draw.text((WIDTH - w - 4, 1), right_text, font=font_small, fill=255)
+        draw.text((WIDTH - w - 4, 2), right_text, font=font_small, fill=255)
     except AttributeError:
-        draw.text((WIDTH - 120, 1), right_text, font=font_small, fill=255)
+        draw.text((WIDTH - 120, 2), right_text, font=font_small, fill=255)
         
     # --- The Pet Face (Left Side) ---
     # Draw a mock 3D printer hotend casing around the text face
-    hx, hy = 5, 25
-    hw, hh = 120, 65
+    hx, hy = 5, 20
+    hw, hh = 110, 55
     
     # Draw hotend box
     draw.rectangle((hx, hy, hx+hw, hy+hh), outline=0, width=2)
     # Draw nozzle tip
     draw.polygon([(hx+hw//2 - 10, hy+hh), (hx+hw//2 + 10, hy+hh), (hx+hw//2, hy+hh+15)], fill=0)
     
-    # Center face in hotend
+    # Center face in hotend (shifting up slightly)
     try:
         fw = draw.textlength(pet.face, font=font_large)
-        draw.text((hx + (hw - fw)//2, hy + 10), pet.face, font=font_large, fill=0)
+        draw.text((hx + (hw - fw)//2, hy + 5), pet.face, font=font_large, fill=0)
     except AttributeError:
-        draw.text((hx + 10, hy + 10), pet.face, font=font_large, fill=0)
+        draw.text((hx + 5, hy + 5), pet.face, font=font_large, fill=0)
         
     # Total Hours below Hotend
     hrs = round(pet.total_print_seconds / 3600.0, 1)
-    draw.text((hx + 5, hy+hh + 4), f"Tot: {hrs}h", font=font_small, fill=0)
+    draw.text((hx, hy+hh + 18), f"Total: {hrs}h", font=font_small, fill=0)
     
     # --- Stats Region (Right Side) ---
-    sx = 135
-    sy = 25
+    sx = 125
+    sy = 20
     nozzle = state.get("nozzle_temper", 0)
     nozzle_target = state.get("nozzle_target_temper", 0)
     bed = state.get("bed_temper", 0)
@@ -82,10 +82,10 @@ def draw_ui(state, pet):
     progress = state.get("mc_percent", 0)
     time_left = state.get("mc_remaining_time", 0)
     
-    bar_x = 135
-    bar_y = 90
+    bar_x = 125
+    bar_y = 85
     bar_w = WIDTH - bar_x - 5
-    bar_h = 20
+    bar_h = 16
     
     draw.rectangle((bar_x, bar_y, bar_x + bar_w, bar_y + bar_h), outline=0, width=2)
     
