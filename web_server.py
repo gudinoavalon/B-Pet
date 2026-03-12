@@ -28,6 +28,10 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <h1>(>_>) B-Pet Config</h1>
+    <div class="group" style="text-align: center; font-size: 1.2em;">
+        <strong>Total Print Hours:</strong> {{ "%.1f" | format(stats.total_print_seconds / 3600.0) }}h 
+        | <strong>Level:</strong> {{ ((stats.total_print_seconds / 3600.0) ** 0.5 * 2) | int + 1 }}
+    </div>
     <div class="group">
         <form method="POST">
             <label>Printer IP Address:</label>
@@ -56,9 +60,19 @@ def save_config(conf):
     with open(CONFIG_PATH, "w") as f:
         json.dump(conf, f, indent=4)
 
+def load_stats():
+    if os.path.exists("stats.json"):
+        try:
+            with open("stats.json", "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"total_print_seconds": 0}
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     conf = load_config()
+    stats = load_stats()
     if request.method == "POST":
         if "printer" not in conf:
             conf["printer"] = {}
@@ -68,7 +82,7 @@ def index():
         save_config(conf)
         # Terminate to allow systemd to restart and apply new config
         os._exit(1) 
-    return render_template_string(HTML_TEMPLATE, config=conf)
+    return render_template_string(HTML_TEMPLATE, config=conf, stats=stats)
 
 def run_web(port=8080):
     app.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
